@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RPM Project</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.btn {
+  background-color: #587889;
+  color: white;
+  text-align: center;
+  font-size: 13px;
+}
+
+.row {
+  margin-left:-5px;
+  margin-right:-5px;
+}
+  
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  font-family:times;
+}
+
+th, td {
+  text-align: left;
+  padding: 2px;
+}
+
+tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.prog{
+	width: 100%;
+	fill: green;
+}
+
+</style>
+</head>
+
+
+<body>
+<noscript>
+  Sorry, your browser does not support Javascript!
+  
+</noscript>
+
+<script>
+//Function takes in firstName as parameter to show which patient is being called
+ async function getPatientVitals(firstName)
+ {
+	// alert("gpv = " + firstName);
+	 document.getElementById("button2").innerHTML = "Patient Vitals List Successfully Retrieved!";
+	 
+	 //Fetching information from postman and turning it into JSON Object
+	 const response_vitals = await fetch('http://localhost:8080/RPMWeb/vitals/' + firstName);
+	 const myjson_vitals = await response_vitals.json();
+	 const obj_vitals = myjson_vitals;
+	 
+	//Clear Table
+		
+	    len_vitals = document.getElementById("patientvitals").rows.length;
+	    if (len_vitals > 1) {
+	        for (let k = 0; k < len_vitals-1; k++) {
+	          document.getElementById("patientvitals").deleteRow(1);
+	        }
+	    }
+	 
+	 //alert(myjson_vitals.patientvitals[0].firstName);
+	 //alert(myjson_vitals.patientvitals[0].lastName);
+	 
+	 
+	 //Creating the table with 6 columns
+     var table = document.getElementById("patientvitals");
+     var row  = table.insertRow();
+     var cell1 = row.insertCell(0);
+     var cell2 = row.insertCell(1);
+     var cell3 = row.insertCell(2);
+     var cell4 = row.insertCell(3);
+     var cell5 = row.insertCell(4);
+     var cell6 = row.insertCell(5);
+     var cell7 = row.insertCell(6);
+     
+     
+     
+     //Fetching information from JSON object - firstName, lastName, etc. and then
+
+     cell1.innerHTML = obj_vitals.patientvitals[0].firstName;
+     cell2.innerHTML = obj_vitals.patientvitals[0].lastName;
+     cell3.innerHTML = obj_vitals.patientvitals[0].O2;
+     cell4.innerHTML = obj_vitals.patientvitals[0].SYS;
+     cell5.innerHTML = obj_vitals.patientvitals[0].DIA;
+     cell6.innerHTML = obj_vitals.patientvitals[0].BS;
+     cell7.innerHTML = obj_vitals.patientvitals[0].Status;
+     
+     document.getElementsByClassName("prog")[0].setAttribute("style", "width: 50px");
+	
+     //This changes the color of the background of the status rectangle depending on the status of patient - Green = normal, yellow = abnormal, red = critical
+   	 if (obj_vitals.patientvitals[0].Status == "Normal") 
+   	 {
+   		 cell7.style.backgroundColor = '#00ff00';
+   
+   	 }
+   	 
+   	if (obj_vitals.patientvitals[0].Status == "Critical") 
+  	 {
+  		 cell7.style.backgroundColor = '#ff0000';
+  
+  	 }
+  	 
+   	if (obj_vitals.patientvitals[0].Status == "Abnormal") 
+  	 {
+  		 cell7.style.backgroundColor = 'yellow';
+  
+  	 }
+  	 
+     
+ }
+ 
+  async function getPatients()
+ {
+	//When button pressed - send and post this message on the website/server
+    document.getElementById("button1").innerHTML = "Patient List Successfully Populated!";
+    
+    
+   //Fetch information from postman and creating the information into JSON objects
+	const response = await fetch('http://localhost:8080/RPMWeb/patient');
+	const myjson = await response.json();
+    
+    /*    
+    let text = '{' +
+                '"patients" : [' +
+                                  '{"firstName": "Abhinav", "lastName": "M", "age" : 16},' +
+                                  '{"firstName": "Anna", "lastName": "Smith", "age" : 26},' +
+                                  '{"firstName": "Peter", "lastName": "King", "age" : 36},' +
+                                  '{"firstName": "Peter", "lastName": "Kong", "age" : 36},' +
+                                  '{"firstName": "Pete", "lastName": "David", "age" : 39}' +
+                        ']' +
+              '}';
+              
+    const obj = JSON.parse(text);
+    */
+    
+    
+    //Parsing through the JSON to get the first name of the patient - this then serves as a paramter in the getPatientVitals function
+    const obj = myjson;
+    
+    //Clear Table
+    len = document.getElementById("patients").rows.length;
+    if (len > 1) {
+        for (let k = 0; k < len-1; k++) {
+          document.getElementById("patients").deleteRow(1);
+        }
+    }
+    //Repopulate Table
+    for (let i = 0; i < obj.patients.length; i++){
+      var table = document.getElementById("patients");
+      var row  = table.insertRow();
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      var cell4 = row.insertCell(3);
+
+
+      cell1.innerHTML = obj.patients[i].firstName;
+      cell2.innerHTML = obj.patients[i].lastName;
+      cell3.innerHTML = obj.patients[i].age;
+      cell4.innerHTML = '<button onclick="getPatientVitals(\'' + obj.patients[i].firstName + '\')"> Get Vitals </button>';
+    }
+  }
+</script>
+
+ 
+<!-- 
+  <img src="https://cdn4.vectorstock.com/i/1000x1000/62/48/remote-patient-monitoring-concept-icon-vector-34536248.jpg" width = "1000" height = "200">
+-->
+  <img src="./header.png" width = "100%" height = "150">
+
+  <h1 style="color:#587889; font-size:30px;"> Connect2MyDoctor Nurse Dashboard </h1>
+
+
+<h Id="button1"> List of Patients - To be Populated</h>
+
+<table id="patients">
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Age</th>
+       <th>Details</th>
+    </tr>
+
+  </table>
+  
+  <br><br>
+<button class = "btn" onclick="getPatients()"> Refresh Patients List </button>
+<br> <br> <br>
+<h Id="button2"> List of Patient Vitals - To be Populated</h>
+<br><br>
+<table id="patientvitals">
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>   O2   </th>
+      <th>SYS</th>
+      <th>DIA</th>
+      <th>BS</th>
+      <th>Status</th>
+    </tr>
+
+  </table>
+  <br>
+  <br>
+  <br>
+  <div class="progress-bar-container">
+  <progress id="prog" value="20" max="100">O2</progress>
+</div>
+
+<script>
+  // Retrieve the value from the table
+  var value = parseInt(document.querySelector("#patientvitals tr td:nth-child(4)").innerHTML);
+
+  // Calculate the percentage
+  var percentage = (value / 100) * 100; // Assuming the value is already in percentage
+
+  // Update the progress bar width
+  var progressBar = document.getElementById("prog");
+
+  progressBar.style.width = percentage + "%";
+</script>
+
+<style>
+  .progress-bar-container {
+    width: 200px; /* Adjust width as needed */
+    height: 20px; /* Adjust height as needed */
+    background-color: #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  progress {
+    width: 100%;
+    height: 100%;
+    appearance: none;
+    background-color: #4caf50; /* Change color as needed */
+    border: none;
+    border-radius: 4px;
+  }
+</style>
+
+
+<applet code ="./service/MyApplet.class" width=400 height=400></applet>
+
+<!--   <button onclick="getPatientVitals('Abhinav')">Get Patient Vitals</button> -->
+</body>
+</html>
